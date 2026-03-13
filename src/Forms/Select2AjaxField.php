@@ -3,7 +3,7 @@
 /**
  * This file is part of SilverWare.
  *
- * PHP version >=5.6.0
+ * PHP version >=8.1.0
  *
  * For full copyright and license information, please view the
  * LICENSE.md file that was distributed with this source code.
@@ -17,7 +17,6 @@
 
 namespace SilverWare\Select2\Forms;
 
-use SilverStripe\CMS\Model\SiteTree;
 use SilverStripe\Control\HTTPRequest;
 use SilverStripe\Control\HTTPResponse;
 use SilverStripe\Core\Convert;
@@ -51,7 +50,7 @@ class Select2AjaxField extends Select2Field
     private static $allowed_actions = [
         'search'
     ];
-    
+
     /**
      * An array which defines the default Ajax configuration for instances.
      *
@@ -62,7 +61,7 @@ class Select2AjaxField extends Select2Field
         'cache' => true,
         'delay' => 250
     ];
-    
+
     /**
      * An array which defines the default configuration for instances.
      *
@@ -72,88 +71,88 @@ class Select2AjaxField extends Select2Field
     private static $default_config = [
         'minimum-input-length' => 2
     ];
-    
+
     /**
      * An array which holds the Ajax configuration for an instance.
      *
      * @var array
      */
-    protected $ajaxConfig;
-    
+    protected array $ajaxConfig = [];
+
     /**
      * Defines whether Ajax is enabled or disabled for the field.
      *
      * @var boolean
      */
-    protected $ajaxEnabled = true;
-    
+    protected bool $ajaxEnabled = true;
+
     /**
      * The data class to search via Ajax.
      *
      * @var string
      */
-    protected $dataClass = SiteTree::class;
-    
+    protected string $dataClass;
+
     /**
      * The ID field for the data class.
      *
      * @var string
      */
-    protected $idField = 'ID';
-    
+    protected string $idField = 'ID';
+
     /**
      * The text field to display for the data class.
      *
      * @var string
      */
-    protected $textField = 'Title';
-    
+    protected string $textField = 'Title';
+
     /**
      * The fields to search on the data class.
      *
      * @var array
      */
-    protected $searchFields = [
+    protected array $searchFields = [
         'Title'
     ];
-    
+
     /**
      * The fields to sort the result list by.
      *
      * @var array|string
      */
-    protected $sortBy = [
+    protected array|string $sortBy = [
         'Title' => 'ASC'
     ];
-    
+
     /**
      * The maximum number of records to answer.
      *
      * @var integer
      */
-    protected $limit = 256;
-    
+    protected int $limit = 256;
+
     /**
      * An array of filters which specify records to be excluded from the search.
      *
      * @var array
      */
-    protected $exclude = [];
-    
+    protected array $exclude = [];
+
     /**
      * Defines the string format to use for a result.
      *
      * @var string
      */
-    protected $formatResult;
-    
+    protected ?string $formatResult = null;
+
     /**
      * Defines the string format to use for a selection.
      *
      * @var string
      */
-    protected $formatSelection;
-    
+    protected ?string $formatSelection = null;
+
     /**
      * Constructs the object upon instantiation.
      *
@@ -162,31 +161,31 @@ class Select2AjaxField extends Select2Field
      * @param array|ArrayAccess $source
      * @param mixed $value
      */
-    public function __construct($name, $title = null, $source = [], $value = null)
+    public function __construct(string $name, ?string $title = null, $source = [], $value = null)
     {
         // Construct Parent:
-        
+
         parent::__construct($name, $title, $source, $value);
-        
+
         // Define Default Ajax Config:
-        
+
         $this->setAjaxConfig(self::config()->default_ajax_config);
-        
+
         // Define Empty String:
-        
+
         $this->setEmptyString(_t(__CLASS__ . '.SEARCH', 'Search'));
     }
-    
+
     /**
      * Answers the field type for the template.
      *
      * @return string
      */
-    public function Type()
+    public function Type(): string
     {
         return sprintf('select2ajaxfield %s', parent::Type());
     }
-    
+
     /**
      * Defines the source for the receiver.
      *
@@ -194,15 +193,15 @@ class Select2AjaxField extends Select2Field
      *
      * @return $this
      */
-    public function setSource($source)
+    public function setSource($source): static
     {
         if ($source instanceof DataList) {
             $this->setDataClass($source->dataClass());
         }
-        
+
         return parent::setSource($source);
     }
-    
+
     /**
      * Defines either the named Ajax config value, or the Ajax config array.
      *
@@ -211,17 +210,17 @@ class Select2AjaxField extends Select2Field
      *
      * @return $this
      */
-    public function setAjaxConfig($arg1, $arg2 = null)
+    public function setAjaxConfig(string|array $arg1, mixed $arg2 = null): static
     {
         if (is_array($arg1)) {
             $this->ajaxConfig = $arg1;
         } else {
             $this->ajaxConfig[$arg1] = $arg2;
         }
-        
+
         return $this;
     }
-    
+
     /**
      * Answers either the named Ajax config value, or the Ajax config array.
      *
@@ -229,15 +228,15 @@ class Select2AjaxField extends Select2Field
      *
      * @return mixed
      */
-    public function getAjaxConfig($name = null)
+    public function getAjaxConfig(?string $name = null): mixed
     {
         if (!is_null($name)) {
-            return isset($this->ajaxConfig[$name]) ? $this->ajaxConfig[$name] : null;
+            return $this->ajaxConfig[$name] ?? null;
         }
-        
+
         return $this->ajaxConfig;
     }
-    
+
     /**
      * Defines the value of the ajaxEnabled attribute.
      *
@@ -245,23 +244,23 @@ class Select2AjaxField extends Select2Field
      *
      * @return $this
      */
-    public function setAjaxEnabled($ajaxEnabled)
+    public function setAjaxEnabled(bool $ajaxEnabled): static
     {
-        $this->ajaxEnabled = (boolean) $ajaxEnabled;
-        
+        $this->ajaxEnabled = $ajaxEnabled;
+
         return $this;
     }
-    
+
     /**
      * Answers the value of the ajaxEnabled attribute.
      *
      * @return boolean
      */
-    public function getAjaxEnabled()
+    public function getAjaxEnabled(): bool
     {
         return $this->ajaxEnabled;
     }
-    
+
     /**
      * Defines the value of the dataClass attribute.
      *
@@ -269,23 +268,23 @@ class Select2AjaxField extends Select2Field
      *
      * @return $this
      */
-    public function setDataClass($dataClass)
+    public function setDataClass(string $dataClass): static
     {
-        $this->dataClass = (string) $dataClass;
-        
+        $this->dataClass = $dataClass;
+
         return $this;
     }
-    
+
     /**
      * Answers the value of the dataClass attribute.
      *
      * @return string
      */
-    public function getDataClass()
+    public function getDataClass(): ?string
     {
-        return $this->dataClass;
+        return $this->dataClass ?? null;
     }
-    
+
     /**
      * Defines the value of the idField attribute.
      *
@@ -293,23 +292,23 @@ class Select2AjaxField extends Select2Field
      *
      * @return $this
      */
-    public function setIDField($idField)
+    public function setIDField(string $idField): static
     {
-        $this->idField = (string) $idField;
-        
+        $this->idField = $idField;
+
         return $this;
     }
-    
+
     /**
      * Answers the value of the idField attribute.
      *
      * @return string
      */
-    public function getIDField()
+    public function getIDField(): string
     {
         return $this->idField;
     }
-    
+
     /**
      * Defines the value of the textField attribute.
      *
@@ -317,23 +316,23 @@ class Select2AjaxField extends Select2Field
      *
      * @return $this
      */
-    public function setTextField($textField)
+    public function setTextField(string $textField): static
     {
-        $this->textField = (string) $textField;
-        
+        $this->textField = $textField;
+
         return $this;
     }
-    
+
     /**
      * Answers the value of the textField attribute.
      *
      * @return string
      */
-    public function getTextField()
+    public function getTextField(): string
     {
         return $this->textField;
     }
-    
+
     /**
      * Defines the value of the searchFields attribute.
      *
@@ -341,23 +340,23 @@ class Select2AjaxField extends Select2Field
      *
      * @return $this
      */
-    public function setSearchFields($searchFields)
+    public function setSearchFields(array $searchFields): static
     {
-        $this->searchFields = (array) $searchFields;
-        
+        $this->searchFields = $searchFields;
+
         return $this;
     }
-    
+
     /**
      * Answers the value of the searchFields attribute.
      *
      * @return array
      */
-    public function getSearchFields()
+    public function getSearchFields(): array
     {
         return $this->searchFields;
     }
-    
+
     /**
      * Defines the value of the sortBy attribute.
      *
@@ -365,23 +364,23 @@ class Select2AjaxField extends Select2Field
      *
      * @return $this
      */
-    public function setSortBy($sortBy)
+    public function setSortBy(array|string $sortBy): static
     {
         $this->sortBy = $sortBy;
-        
+
         return $this;
     }
-    
+
     /**
      * Answers the value of the sortBy attribute.
      *
      * @return array
      */
-    public function getSortBy()
+    public function getSortBy(): array|string
     {
         return $this->sortBy;
     }
-    
+
     /**
      * Defines the value of the limit attribute.
      *
@@ -389,23 +388,23 @@ class Select2AjaxField extends Select2Field
      *
      * @return $this
      */
-    public function setLimit($limit)
+    public function setLimit(int $limit): static
     {
-        $this->limit = (integer) $limit;
-        
+        $this->limit = $limit;
+
         return $this;
     }
-    
+
     /**
      * Answers the value of the limit attribute.
      *
      * @return integer
      */
-    public function getLimit()
+    public function getLimit(): int
     {
         return $this->limit;
     }
-    
+
     /**
      * Defines the value of the exclude attribute.
      *
@@ -413,23 +412,23 @@ class Select2AjaxField extends Select2Field
      *
      * @return $this
      */
-    public function setExclude($exclude)
+    public function setExclude(array $exclude): static
     {
-        $this->exclude = (array) $exclude;
-        
+        $this->exclude = $exclude;
+
         return $this;
     }
-    
+
     /**
      * Answers the value of the exclude attribute.
      *
      * @return array
      */
-    public function getExclude()
+    public function getExclude(): array
     {
         return $this->exclude;
     }
-    
+
     /**
      * Defines the value of the formatResult attribute.
      *
@@ -437,23 +436,23 @@ class Select2AjaxField extends Select2Field
      *
      * @return $this
      */
-    public function setFormatResult($formatResult)
+    public function setFormatResult(?string $formatResult): static
     {
-        $this->formatResult = (string) $formatResult;
-        
+        $this->formatResult = $formatResult;
+
         return $this;
     }
-    
+
     /**
      * Answers the value of the formatResult attribute.
      *
      * @return string
      */
-    public function getFormatResult()
+    public function getFormatResult(): ?string
     {
         return $this->formatResult;
     }
-    
+
     /**
      * Defines the value of the formatSelection attribute.
      *
@@ -461,23 +460,23 @@ class Select2AjaxField extends Select2Field
      *
      * @return $this
      */
-    public function setFormatSelection($formatSelection)
+    public function setFormatSelection(?string $formatSelection): static
     {
-        $this->formatSelection = (string) $formatSelection;
-        
+        $this->formatSelection = $formatSelection;
+
         return $this;
     }
-    
+
     /**
      * Answers the value of the formatSelection attribute.
      *
      * @return string
      */
-    public function getFormatSelection()
+    public function getFormatSelection(): ?string
     {
         return $this->formatSelection;
     }
-    
+
     /**
      * Updates the text field, search fields and sort order to the specified field name.
      *
@@ -486,49 +485,49 @@ class Select2AjaxField extends Select2Field
      *
      * @return $this
      */
-    public function setDescriptor($field, $order = 'ASC')
+    public function setDescriptor(string $field, string $order = 'ASC'): static
     {
         // Define Attributes:
-        
+
         $this->setTextField($field);
         $this->setSearchFields([$field]);
         $this->setSortBy([$field => $order]);
-        
+
         // Answer Self:
-        
+
         return $this;
     }
-    
+
     /**
      * Answers an array of data attributes for the field.
      *
      * @return array
      */
-    public function getDataAttributes()
+    public function getDataAttributes(): array
     {
         $attributes = parent::getDataAttributes();
-        
+
         if ($this->isAjaxEnabled()) {
-            
+
             foreach ($this->getFieldAjaxConfig() as $key => $value) {
                 $attributes[sprintf('data-ajax--%s', $key)] = $this->getDataValue($value);
             }
-            
+
         }
-        
+
         return $attributes;
     }
-    
+
     /**
      * Answers true if Ajax is enabled for the field.
      *
      * @return boolean
      */
-    public function isAjaxEnabled()
+    public function isAjaxEnabled(): bool
     {
         return $this->ajaxEnabled;
     }
-    
+
     /**
      * Answers an HTTP response containing JSON results matching the given search parameters.
      *
@@ -536,51 +535,51 @@ class Select2AjaxField extends Select2Field
      *
      * @return HTTPResponse
      */
-    public function search(HTTPRequest $request)
+    public function search(HTTPRequest $request): HTTPResponse
     {
         // Detect Ajax:
-        
+
         if (!$request->isAjax()) {
-            return;
+            return $this->httpError(400);
         }
-        
+
         // Initialise:
-        
+
         $data = ['results' => []];
-        
+
         // Create Data List:
-        
+
         $list = $this->getList();
-        
+
         // Filter Data List:
-        
+
         if ($term = $request->getVar('term')) {
             $list = $list->filterAny($this->getSearchFilters($term))->exclude($this->getExclude());
         }
-        
+
         // Sort Data List:
-        
+
         if ($sort = $this->getSortBy()) {
             $list = $list->sort($sort);
         }
-        
+
         // Limit Data List:
-        
+
         if ($limit = $this->getLimit()) {
             $list = $list->limit($limit);
         }
-        
+
         // Define Results:
-        
+
         foreach ($list as $record) {
             $data['results'][] = $this->getResultData($record);
         }
-        
+
         // Answer JSON Response:
-        
+
         return $this->respond($data);
     }
-    
+
     /**
      * Answers an array of search filters for the given term.
      *
@@ -588,17 +587,17 @@ class Select2AjaxField extends Select2Field
      *
      * @return array
      */
-    public function getSearchFilters($term)
+    public function getSearchFilters(string $term): array
     {
         $filters = [];
-        
+
         foreach ($this->getSearchFields() as $field) {
             $filters[$this->getSearchFilterName($field)] = $term;
         }
-        
+
         return $filters;
     }
-    
+
     /**
      * Answers the name of the search filter for the specified field.
      *
@@ -606,11 +605,11 @@ class Select2AjaxField extends Select2Field
      *
      * @return string
      */
-    public function getSearchFilterName($field)
+    public function getSearchFilterName(string $field): string
     {
         return (strpos($field, ':') !== false) ? $field : sprintf('%s:PartialMatch', $field);
     }
-    
+
     /**
      * Loads the value of the field from the given relation.
      *
@@ -618,11 +617,11 @@ class Select2AjaxField extends Select2Field
      *
      * @return void
      */
-    public function loadFromRelation(Relation $relation)
+    public function loadFromRelation(Relation $relation): void
     {
         parent::setValue($relation->column($this->getIDField()));
     }
-    
+
     /**
      * Saves the value of the field into the given relation.
      *
@@ -630,17 +629,17 @@ class Select2AjaxField extends Select2Field
      *
      * @return void
      */
-    public function saveIntoRelation(Relation $relation)
+    public function saveIntoRelation(Relation $relation): void
     {
         $ids = [];
-        
+
         if ($values = $this->getValueArray()) {
             $ids = $this->getList()->filter($this->getIDField(), $values)->getIDList();
         }
-        
+
         $relation->setByIDList($ids);
     }
-    
+
     /**
      * Answers true if the given data value and user value match (i.e. the value is selected).
      *
@@ -649,31 +648,31 @@ class Select2AjaxField extends Select2Field
      *
      * @return boolean
      */
-    public function isSelectedValue($dataValue, $userValue)
+    public function isSelectedValue($dataValue, $userValue): bool
     {
-        if (is_array($userValue) && in_array($dataValue, $userValue)) {
+        if (is_array($userValue) && in_array($dataValue, $userValue, true)) {
             return true;
         }
-        
+
         return parent::isSelectedValue($dataValue, $userValue);
     }
-    
+
     /**
      * Answers the source array for the field options, including the empty string, if present.
      *
      * @return array
      */
-    public function getSourceEmpty()
+    public function getSourceEmpty(): array
     {
         if (!$this->isAjaxEnabled()) {
             return parent::getSourceEmpty();
         } elseif ($this->getHasEmptyDefault()) {
             return ['' => $this->getEmptyString()];
         }
-        
+
         return [];
     }
-    
+
     /**
      * Answers the record identified by the given value.
      *
@@ -681,11 +680,11 @@ class Select2AjaxField extends Select2Field
      *
      * @return ViewableData
      */
-    protected function getValueRecord($id)
+    protected function getValueRecord($id): ?ViewableData
     {
         return $this->getList()->find($this->getIDField(), $id);
     }
-    
+
     /**
      * Answers an HTTP response object with the given array of JSON data.
      *
@@ -693,21 +692,25 @@ class Select2AjaxField extends Select2Field
      *
      * @return HTTPResponse
      */
-    protected function respond($data = [])
+    protected function respond(array $data = []): HTTPResponse
     {
         return HTTPResponse::create(Convert::array2json($data))->addHeader('Content-Type', 'application/json');
     }
-    
+
     /**
      * Answers the underlying list for the field.
      *
      * @return SS_List
      */
-    protected function getList()
+    protected function getList(): SS_List
     {
+        if (!isset($this->dataClass)) {
+            throw new \LogicException(sprintf('No data class has been configured for "%s".', static::class));
+        }
+
         return DataList::create($this->dataClass);
     }
-    
+
     /**
      * Answers a result data array for the given record object.
      *
@@ -716,7 +719,7 @@ class Select2AjaxField extends Select2Field
      *
      * @return array
      */
-    protected function getResultData(ViewableData $record, $selected = false)
+    protected function getResultData(ViewableData $record, bool $selected = false): array
     {
         return [
             'id' => $record->{$this->getIDField()},
@@ -726,7 +729,7 @@ class Select2AjaxField extends Select2Field
             'selected' => $selected
         ];
     }
-    
+
     /**
      * Answers a formatted result string for the given record object.
      *
@@ -734,13 +737,13 @@ class Select2AjaxField extends Select2Field
      *
      * @return string
      */
-    protected function getFormattedResult(ViewableData $record)
+    protected function getFormattedResult(ViewableData $record): ?string
     {
         if ($format = $this->getFormatResult()) {
             return SSViewer::fromString($format)->process($record);
         }
     }
-    
+
     /**
      * Answers a formatted selection string for the given record object.
      *
@@ -748,13 +751,13 @@ class Select2AjaxField extends Select2Field
      *
      * @return string
      */
-    protected function getFormattedSelection(ViewableData $record)
+    protected function getFormattedSelection(ViewableData $record): ?string
     {
         if ($format = $this->getFormatSelection()) {
             return SSViewer::fromString($format)->process($record);
         }
     }
-    
+
     /**
      * Converts the given data source into an array.
      *
@@ -762,72 +765,72 @@ class Select2AjaxField extends Select2Field
      *
      * @return array
      */
-    protected function getListMap($source)
+    protected function getListMap($source): array|ArrayAccess
     {
         // Extract Map from ID / Text Fields:
-        
+
         if ($source instanceof SS_List) {
             $source = $source->map($this->getIDField(), $this->getTextField());
         }
-        
+
         // Convert Map to Array:
-        
+
         if ($source instanceof Map) {
             $source = $source->toArray();
         }
-        
+
         // Determine Invalid Types:
-        
+
         if (!is_array($source) && !($source instanceof ArrayAccess)) {
-            user_error('$source passed in as invalid type', E_USER_ERROR);
+            throw new \InvalidArgumentException('$source passed in as invalid type');
         }
-        
+
         // Answer Data Source:
-        
+
         return $source;
     }
-    
+
     /**
      * Answers the field config for the receiver.
      *
      * @return array
      */
-    protected function getFieldConfig()
+    protected function getFieldConfig(): array
     {
         $config = parent::getFieldConfig();
-        
+
         if ($values = $this->getValueArray()) {
-            
+
             $data = [];
-            
+
             foreach ($values as $value) {
-                
+
                 if ($record = $this->getValueRecord($value)) {
                     $data[] = $this->getResultData($record, true);
                 }
-                
+
             }
-            
+
             $config['data'] = $data;
-            
+
         }
-        
+
         return $config;
     }
-    
+
     /**
      * Answers the field Ajax config for the receiver.
      *
      * @return array
      */
-    protected function getFieldAjaxConfig()
+    protected function getFieldAjaxConfig(): array
     {
         $config = $this->getAjaxConfig();
-        
+
         if (!isset($config['url'])) {
             $config['url'] = $this->Link('search');
         }
-        
+
         return $config;
     }
 }

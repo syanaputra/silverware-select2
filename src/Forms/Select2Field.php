@@ -3,7 +3,7 @@
 /**
  * This file is part of SilverWare.
  *
- * PHP version >=5.6.0
+ * PHP version >=8.1.0
  *
  * For full copyright and license information, please view the
  * LICENSE.md file that was distributed with this source code.
@@ -20,10 +20,13 @@ namespace SilverWare\Select2\Forms;
 use SilverStripe\Core\Convert;
 use SilverStripe\Forms\DropdownField;
 use SilverStripe\Forms\FormField;
+use SilverStripe\Forms\Validator;
 use SilverStripe\ORM\ArrayList;
 use SilverStripe\ORM\DataObject;
 use SilverStripe\ORM\DataObjectInterface;
+use SilverStripe\ORM\FieldType\DBHTMLText;
 use SilverStripe\ORM\Relation;
+use SilverStripe\View\ViewableData;
 
 /**
  * An extension of the dropdown field class for a Select2 field.
@@ -45,21 +48,21 @@ class Select2Field extends DropdownField
     private static $default_config = [
         'width' => '100%'
     ];
-    
+
     /**
      * An array which holds the configuration for an instance.
      *
      * @var array
      */
-    protected $config;
-    
+    protected array $config = [];
+
     /**
      * Defines whether the field can handle multiple options.
      *
      * @var boolean
      */
-    protected $multiple = false;
-    
+    protected bool $multiple = false;
+
     /**
      * Constructs the object upon instantiation.
      *
@@ -68,31 +71,31 @@ class Select2Field extends DropdownField
      * @param array|ArrayAccess $source
      * @param mixed $value
      */
-    public function __construct($name, $title = null, $source = [], $value = null)
+    public function __construct(string $name, ?string $title = null, $source = [], $value = null)
     {
         // Construct Parent:
-        
+
         parent::__construct($name, $title, $source, $value);
-        
+
         // Define Default Config:
-        
+
         $this->setConfig(self::config()->default_config);
-        
+
         // Disable Chosen:
-        
+
         $this->addExtraClass('no-chosen');
     }
-    
+
     /**
      * Answers the field type for the template.
      *
      * @return string
      */
-    public function Type()
+    public function Type(): string
     {
         return sprintf('select2field %s', parent::Type());
     }
-    
+
     /**
      * Renders the field for the template.
      *
@@ -100,67 +103,67 @@ class Select2Field extends DropdownField
      *
      * @return DBHTMLText
      */
-    public function Field($properties = [])
+    public function Field($properties = []): DBHTMLText
     {
         // Merge Options:
-        
+
         $properties = array_merge($properties, [
             'Options' => $this->getOptions()
         ]);
-        
+
         // Render Field:
-        
+
         return FormField::Field($properties);
     }
-    
+
     /**
      * Answers an array list containing the options for the field.
      *
      * @return ArrayList
      */
-    public function getOptions()
+    public function getOptions(): ArrayList
     {
         // Create Options List:
-        
+
         $options = ArrayList::create();
-        
+
         // Iterate Source Items:
-        
+
         foreach ($this->getSourceEmpty() as $value => $title) {
             $options->push($this->getFieldOption($value, $title));
         }
-        
+
         // Handle Tags:
-        
+
         if ($this->usesTags()) {
-            
+
             // Obtain Source Values:
-            
+
             $values = $this->getSourceValues();
-            
+
             // Iterate Value Array:
-            
+
             foreach ($this->getValueArray() as $value) {
-                
+
                 // Handle Tag Values:
-                
+
                 if (!in_array($value, $values)) {
                     $options->push($this->getFieldOption($value, $value));
                 }
-                
+
             }
-            
+
         }
-        
+
         // Apply Extensions:
-        
+
         $this->extend('updateOptions', $options);
-        
+
         // Answer Options List:
-        
+
         return $options;
     }
-    
+
     /**
      * Defines either the named config value, or the config array.
      *
@@ -169,17 +172,17 @@ class Select2Field extends DropdownField
      *
      * @return $this
      */
-    public function setConfig($arg1, $arg2 = null)
+    public function setConfig(string|array $arg1, mixed $arg2 = null): static
     {
         if (is_array($arg1)) {
             $this->config = $arg1;
         } else {
             $this->config[$arg1] = $arg2;
         }
-        
+
         return $this;
     }
-    
+
     /**
      * Answers either the named config value, or the config array.
      *
@@ -187,15 +190,15 @@ class Select2Field extends DropdownField
      *
      * @return mixed
      */
-    public function getConfig($name = null)
+    public function getConfig(?string $name = null): mixed
     {
         if (!is_null($name)) {
-            return isset($this->config[$name]) ? $this->config[$name] : null;
+            return $this->config[$name] ?? null;
         }
-        
+
         return $this->config;
     }
-    
+
     /**
      * Defines the value of the multiple attribute.
      *
@@ -203,95 +206,95 @@ class Select2Field extends DropdownField
      *
      * @return $this
      */
-    public function setMultiple($multiple)
+    public function setMultiple(bool $multiple): static
     {
-        $this->multiple = (boolean) $multiple;
-        
+        $this->multiple = $multiple;
+
         return $this;
     }
-    
+
     /**
      * Answers the value of the multiple attribute.
      *
      * @return boolean
      */
-    public function getMultiple()
+    public function getMultiple(): bool
     {
         return $this->multiple;
     }
-    
+
     /**
      * Answers the multiple name of the field.
      *
      * @return string
      */
-    public function getMultipleName()
+    public function getMultipleName(): string
     {
         return sprintf('%s[]', $this->getName());
     }
-    
+
     /**
      * Answers true if the field handles multiple tags.
      *
      * @return boolean
      */
-    public function isMultiple()
+    public function isMultiple(): bool
     {
         return $this->getMultiple();
     }
-    
+
     /**
      * Answers true if the field is configured to use tags.
      *
      * @return boolean
      */
-    public function usesTags()
+    public function usesTags(): bool
     {
         $config = $this->getFieldConfig();
-        
+
         return (isset($config['tags']) && $config['tags']);
     }
-    
+
     /**
      * Answers an array of HTML attributes for the field.
      *
      * @return array
      */
-    public function getAttributes()
+    public function getAttributes(): array
     {
         $attributes = array_merge(
             parent::getAttributes(),
             $this->getDataAttributes()
         );
-        
+
         if ($this->isMultiple()) {
             $attributes['multiple'] = true;
             $attributes['name'] = $this->getMultipleName();
         }
-        
+
         if (!isset($attributes['data-placeholder'])) {
             $attributes['data-placeholder'] = $this->getEmptyString();
         }
-        
+
         return $attributes;
     }
-    
+
     /**
      * Answers an array of data attributes for the field.
      *
      * @return array
      */
-    public function getDataAttributes()
+    public function getDataAttributes(): array
     {
         $attributes = [];
-        
+
         foreach ($this->getFieldConfig() as $key => $value) {
             $attributes[sprintf('data-%s', $key)] = $this->getDataValue($value);
         }
-        
+
         return $attributes;
     }
-    
+
     /**
      * Defines the value of the field.
      *
@@ -300,16 +303,16 @@ class Select2Field extends DropdownField
      *
      * @return $this
      */
-    public function setValue($value, $data = null)
+    public function setValue(mixed $value, null|array|ViewableData $data = null): static
     {
         if ($data instanceof DataObject) {
             $this->loadFrom($data);
             return $this;
         }
-        
+
         return parent::setValue($value);
     }
-    
+
     /**
      * Answers true if the current value of this field matches the given option value.
      *
@@ -318,25 +321,25 @@ class Select2Field extends DropdownField
      *
      * @return boolean
      */
-    public function isSelectedValue($dataValue, $userValue)
+    public function isSelectedValue($dataValue, $userValue): bool
     {
         if (!$this->isMultiple() || !is_array($userValue)) {
             return parent::isSelectedValue($dataValue, $userValue);
         }
-        
-        return in_array($dataValue, $userValue);
+
+        return in_array($dataValue, $userValue, true);
     }
-    
+
     /**
      * Answers the value(s) of this field as an array.
      *
      * @return array
      */
-    public function getValueArray()
+    public function getValueArray(): array
     {
         return $this->getListValues($this->Value());
     }
-    
+
     /**
      * Loads the value of the field from the given data object.
      *
@@ -344,41 +347,41 @@ class Select2Field extends DropdownField
      *
      * @return void
      */
-    public function loadFrom(DataObjectInterface $record)
+    public function loadFrom(DataObjectInterface $record): void
     {
         // Obtain Field Name:
-        
+
         $fieldName = $this->getName();
-        
+
         // Bail Early (if needed):
-        
+
         if (empty($fieldName) || empty($record)) {
             return;
         }
-        
+
         // Determine Value Mode:
-        
+
         if (!$this->isMultiple()) {
-            
+
             // Load Singular Value:
-            
+
             parent::setValue($record->$fieldName);
-            
+
         } else {
-            
+
             // Load Multiple Value:
-            
+
             $relation = $this->getNamedRelation($record);
-            
+
             if ($relation instanceof Relation) {
                 $this->loadFromRelation($relation);
             } elseif ($record->hasField($fieldName)) {
                 parent::setValue($this->stringDecode($record->$fieldName));
             }
-            
+
         }
     }
-    
+
     /**
      * Saves the value of the field into the given data object.
      *
@@ -386,41 +389,41 @@ class Select2Field extends DropdownField
      *
      * @return void
      */
-    public function saveInto(DataObjectInterface $record)
+    public function saveInto(DataObjectInterface $record): void
     {
         // Obtain Field Name:
-        
+
         $fieldName = $this->getName();
-        
+
         // Bail Early (if needed):
-        
+
         if (empty($fieldName) || empty($record)) {
             return;
         }
-        
+
         // Determine Value Mode:
-        
+
         if (!$this->isMultiple()) {
-            
+
             // Save Singular Value:
-            
+
             parent::saveInto($record);
-            
+
         } else {
-            
+
             // Save Multiple Value:
-            
+
             $relation = $this->getNamedRelation($record);
-            
+
             if ($relation instanceof Relation) {
                 $this->saveIntoRelation($relation);
             } elseif ($record->hasField($fieldName)) {
                 $record->$fieldName = $this->stringEncode($this->getValueArray());
             }
-            
+
         }
     }
-    
+
     /**
      * Loads the value of the field from the given relation.
      *
@@ -428,11 +431,11 @@ class Select2Field extends DropdownField
      *
      * @return void
      */
-    public function loadFromRelation(Relation $relation)
+    public function loadFromRelation(Relation $relation): void
     {
         parent::setValue(array_values($relation->getIDList()));
     }
-    
+
     /**
      * Saves the value of the field into the given relation.
      *
@@ -440,11 +443,11 @@ class Select2Field extends DropdownField
      *
      * @return void
      */
-    public function saveIntoRelation(Relation $relation)
+    public function saveIntoRelation(Relation $relation): void
     {
         $relation->setByIDList($this->getValueArray());
     }
-    
+
     /**
      * Performs validation on the receiver.
      *
@@ -452,26 +455,26 @@ class Select2Field extends DropdownField
      *
      * @return boolean
      */
-    public function validate($validator)
+    public function validate(Validator $validator): bool
     {
         // Baily Early (if tags are used):
-        
+
         if ($this->usesTags()) {
             return true;
         }
-        
+
         // Call Parent Method (if not multiple):
-        
+
         if (!$this->isMultiple()) {
             return parent::validate($validator);
         }
-        
+
         // Obtain User Values:
-        
+
         $values = $this->getValueArray();
-        
+
         // Detect Invalid Values:
-        
+
         $invalid = array_filter(
             $values,
             function ($userValue) {
@@ -483,15 +486,15 @@ class Select2Field extends DropdownField
                 return true;
             }
         );
-        
+
         // Answer Success (if none invalid):
-        
+
         if (empty($invalid)) {
             return true;
         }
-        
+
         // Define Validation Error:
-        
+
         $validator->validationError(
             $this->getName(),
             _t(
@@ -503,12 +506,12 @@ class Select2Field extends DropdownField
             ),
             'validation'
         );
-        
+
         // Answer Failure (invalid values detected):
-        
+
         return false;
     }
-    
+
     /**
      * Converts the given array of values into a string.
      *
@@ -516,11 +519,11 @@ class Select2Field extends DropdownField
      *
      * @return string
      */
-    public function stringEncode($values)
+    public function stringEncode(array $values): ?string
     {
         return $values ? Convert::array2json(array_values($values)) : null;
     }
-    
+
     /**
      * Decodes the given string of values into an array.
      *
@@ -528,11 +531,11 @@ class Select2Field extends DropdownField
      *
      * @return array
      */
-    public function stringDecode($values)
+    public function stringDecode(?string $values): array
     {
         return $values ? Convert::json2array($values) : [];
     }
-    
+
     /**
      * Converts the given data value to a string suitable for a data attribute.
      *
@@ -540,7 +543,7 @@ class Select2Field extends DropdownField
      *
      * @return string
      */
-    protected function getDataValue($value)
+    protected function getDataValue(mixed $value): string
     {
         if (is_bool($value)) {
             return $value ? 'true' : 'false';
@@ -550,23 +553,23 @@ class Select2Field extends DropdownField
             return Convert::raw2att($value);
         }
     }
-    
+
     /**
      * Answers the field config for the receiver.
      *
      * @return array
      */
-    protected function getFieldConfig()
+    protected function getFieldConfig(): array
     {
         $config = $this->getConfig();
-        
+
         if ($this->getHasEmptyDefault()) {
             $config['allow-clear'] = true;
         }
-        
+
         return $config;
     }
-    
+
     /**
      * Answers the relation with the field name from the given data object.
      *
@@ -574,8 +577,10 @@ class Select2Field extends DropdownField
      *
      * @return Relation
      */
-    protected function getNamedRelation(DataObjectInterface $record)
+    protected function getNamedRelation(DataObjectInterface $record): ?Relation
     {
-        return $record->hasMethod($this->Name) ? $record->{$this->Name}() : null;
+        $fieldName = $this->getName();
+
+        return $record->hasMethod($fieldName) ? $record->{$fieldName}() : null;
     }
 }

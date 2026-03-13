@@ -4,8 +4,8 @@
 [![Latest Unstable Version](https://poser.pugx.org/silverware/select2/v/unstable)](https://packagist.org/packages/silverware/select2)
 [![License](https://poser.pugx.org/silverware/select2/license)](https://packagist.org/packages/silverware/select2)
 
-Provides Select2-powered dropdown and Ajax fields for [SilverStripe v4][silverstripe-framework]. Intended to be used
-with [SilverWare][silverware], however this module can also be installed into a regular SilverStripe v4 project.
+Provides Select2-powered dropdown and Ajax fields for [SilverStripe v5][silverstripe-framework]. Intended to be used
+with [SilverWare][silverware], however this module can also be installed into a regular SilverStripe v5 project.
 
 ## Contents
 
@@ -21,7 +21,8 @@ with [SilverWare][silverware], however this module can also be installed into a 
 
 ## Requirements
 
-- [SilverStripe Framework v4][silverstripe-framework]
+- [SilverStripe Framework v5.4+][silverstripe-framework]
+- [PHP 8.1+](https://www.php.net/supported-versions.php)
 
 ## Installation
 
@@ -100,7 +101,7 @@ But we do not pass an array of options to choose from to the constructor. Instea
 a `DataList` on the server-side. Here are the default settings:
 
 ```php
-$field->setDataClass(SiteTree::class);  // by default, the field searches for SiteTree records
+$field->setDataClass(SiteTree::class);  // required: tells the field which records to search
 
 $field->setIDField('ID');       // the name of the field which identifies the record
 $field->setTextField('Title');  // the name of the field to use for the option text
@@ -116,7 +117,7 @@ $field->setSortBy([
 $field->setLimit(256);  // the maximum number of records to return
 ```
 
-As mentioned, these are the default settings, and the field will work out-of-the-box for `SiteTree` searches.
+`setDataClass()` is mandatory. Other settings have sensible defaults and can be overridden as needed.
 
 #### Exclusions
 
