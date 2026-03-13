@@ -1,28 +1,28 @@
 {
   "name": "silverware-select2",
-  "version": "1.0.0",
+  "version": "5.0.0",
   "description": "SilverWare Select2 Module.",
-  "homepage": "https://github.com/praxisnetau/silverware-select2",
+  "homepage": "https://github.com/syanaputra/silverware-select2",
   "keywords": [
     "silverware",
     "select2",
     "silverstripe"
   ],
   "license": "BSD-3-Clause",
-  "author": "Praxis Interactive",
+  "author": "Stephanus Yanaputra",
   "contributors": [
     {
-      "name": "Colin Tucker",
-      "email": "colin@praxis.net.au",
-      "url": "https://www.praxis.net.au"
+      "name": "Stephanus Yanaputra",
+      "email": "stephanus.yanaputra@gmail.com",
+      "url": "https://github.com/syanaputra"
     }
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/praxisnetau/silverware-select2.git"
+    "url": "https://github.com/syanaputra/silverware-select2.git"
   },
   "bugs": {
-    "url": "https://github.com/praxisnetau/silverware-select2/issues"
+    "url": "https://github.com/syanaputra/silverware-select2/issues"
   },
   "engines": {
     "node": "^8.x"

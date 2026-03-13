@@ -2,7 +2,7 @@
   "name": "silverware/select2",
   "type": "silverstripe-vendormodule",
   "description": "SilverWare Select2 Module.",
-  "homepage": "https://github.com/praxisnetau/silverware-select2",
+  "homepage": "https://github.com/syanaputra/silverware-select2",
   "keywords": [
     "silverware",
     "select2",
@@ -11,10 +11,10 @@
   "license": "BSD-3-Clause",
   "authors": [
     {
-      "name": "Colin Tucker",
-      "role": "Developer",
-      "email": "colin@praxis.net.au",
-      "homepage": "https://www.praxis.net.au"
+      "name": "Stephanus Yanaputra",
+      "role": "Maintainer",
+      "email": "stephanus.yanaputra@gmail.com",
+      "homepage": "https://github.com/syanaputra"
     }
   ],
   "require": {
@@ -28,7 +28,7 @@
   },
   "extra": {
     "branch-alias": {
-      "dev-master": "2.0.x-dev"
+      "dev-master": "5.0.x-dev"
     },
     "expose": [
       "client/dist"
