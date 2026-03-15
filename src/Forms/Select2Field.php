@@ -449,13 +449,12 @@ class Select2Field extends DropdownField
     }
 
     /**
-     * Performs validation on the receiver.
+     * Validate this field
      *
      * @param Validator $validator
-     *
-     * @return boolean
+     * @return bool
      */
-    public function validate(Validator $validator): bool
+    public function validate($validator)
     {
         // Baily Early (if tags are used):
 
