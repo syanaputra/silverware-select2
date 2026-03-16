@@ -91,7 +91,7 @@ class Select2Field extends DropdownField
      *
      * @return string
      */
-    public function Type(): string
+    public function Type()
     {
         return sprintf('select2field %s', parent::Type());
     }
@@ -103,7 +103,7 @@ class Select2Field extends DropdownField
      *
      * @return DBHTMLText
      */
-    public function Field($properties = []): DBHTMLText
+    public function Field($properties = [])
     {
         // Merge Options:
 
@@ -303,7 +303,7 @@ class Select2Field extends DropdownField
      *
      * @return $this
      */
-    public function setValue(mixed $value, null|array|ViewableData $data = null): static
+    public function setValue($value, $data = null)
     {
         if ($data instanceof DataObject) {
             $this->loadFrom($data);
@@ -321,7 +321,7 @@ class Select2Field extends DropdownField
      *
      * @return boolean
      */
-    public function isSelectedValue($dataValue, $userValue): bool
+    public function isSelectedValue($dataValue, $userValue)
     {
         if (!$this->isMultiple() || !is_array($userValue)) {
             return parent::isSelectedValue($dataValue, $userValue);
